@@ -1,0 +1,512 @@
+#library "CTC"
+#include "zcommon.acs"
+#include "zdaemon.acs"
+
+/* 
+===================================================
+				Catch that Chicken!
+		- Ported to ZD by Krawa & UberGewei
+===================================================
+Original idea by Cutmanmike and HotWax
+*/
+   
+
+#define TID_PLAYERBASE				1000	// base to +MAX_PLAYERS
+#define TID_CHICKEN					1110	// +1 .. +10 for feathers
+#define TID_DUMMY					1120	// last feather, too
+#define MAX_PLAYERS					64
+#define SHOW_MAX_PLAYERS 			32
+#define MAXSCORES_MSG_BASE			1		// for rank 1
+#define MAXSCORES_TEXT_POSY			0.10
+#define MAXSCORES_TEXT_POSY_OFFS	0.02
+#define SEC							35
+
+/* TID Assignments:
+
+	1-10 -- Mapspots in the map **MUST BE INCLUDED** (10)
+   1000-1063 -- Player TIDs assigned by script (64)
+        1110 -- The Chicken (1)
+   1111-1120 -- Feathers (10)
+
+
+Please assign new TIDs outside of the 1-14 range if it can
+be helped, and add new assignments to this list to avoid
+conflicts.
+*/
+
+// Define new monster SpawnIDs here.
+#define T_CHICKENSPAWNER   13
+#define T_CHICKENPICKUP    14
+
+// Define custom class names here.
+function str FixClassName(str classname)
+{
+	switch (classname)
+	{
+		case "ChickenSpawner":      return "Mummy";
+	}
+	// Return it unchanged if it didn't match anything
+	return classname;
+}
+
+int Carrier = -1;
+int Score[MAX_PLAYERS];
+int Present[MAX_PLAYERS];
+int max_scores[MAX_PLAYERS];
+int idx_player_max_scores[MAX_PLAYERS];
+int FlashScore = 0;
+int WinningScore = 100;
+int Trail = 1;
+int NumPlayers = 0;
+int rand;
+bool gamestarted = false;
+
+script 301 open // Setup arena and spawn first chicken 
+{
+	Log(s:"[ZCTC]: Original idea by: Cutmanmike and HotWax. Ported to ZD by: UberGewei and Krawa");
+    
+	while(PlayerCount() < 2) // wait for players
+	{
+		Delay(70);
+		SetFont("TRES3FNT");
+		HudMessageBold(s:"Waiting for atleast 2 players"; HUDMSG_FADEINOUT, 100, CR_WHITE, 0.5, 0.7, 0.5, 0.5);
+	}
+		
+	SetFont("TRES4FNT");
+	Carrier = -1;
+    delay(1);
+	SetPlayerProperty(1, 0, 4);
+    
+	rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
+	
+	while(!Thing_Spawn(rand, 13, 0, TID_DUMMY)) //Let's spawn a dummy
+	{
+		rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
+		Delay(2);
+	}
+	
+	Delay(3*SEC);
+	
+	// Spawn the real chicken at the dummy
+	while(!ThingCount(0, TID_CHICKEN))
+	{
+		Thing_Spawn(TID_DUMMY, 14, 0, TID_CHICKEN);
+		delay(1);
+	}
+	
+    SetThingSpecial(TID_CHICKEN, ACS_Execute, 200, 0, 0, 0, 0);
+    Thing_Hate(TID_CHICKEN, TID_PLAYERBASE+ZD_Rand(0, PlayerTopIndex()));
+    PrintBold(s:"A Chicken has appeared!");
+	AmbientSound("ctcchicken/sight", 127);
+	
+	for (int i=0;i<MAX_PLAYERS;i++)
+		Score[i] = 0;
+		
+	gamestarted = true;
+	ACS_Execute(310, 0, 0, 0, 0);	
+}
+
+script 302 ENTER 
+{	// Assign TID to new players
+    SetFont("TRES4FNT");
+	Present[PlayerNumber()] = 1;	
+	Thing_ChangeTID(0, TID_PLAYERBASE+PlayerNumber());
+	NumPlayers = PlayerCount();
+	if (CheckInventory("Chicken, 0")) TakeInventory("Chicken", 1);
+	SetPlayerProperty(0, 0, PROP_INSTANTWEAPONSWITCH);
+}
+
+script 303 OPEN {	// Play sounds from chicken-holder
+	Delay(random(3, 7) * 35);
+	
+	if (Carrier != -1)
+		ThingSound(TID_PLAYERBASE+Carrier, "ctcchicken/active", 127);
+	
+	restart;
+}
+
+script 304 DEATH { // Release chicken when carrier dies
+    SetFont("TRES4FNT");
+	ClearInventory();
+
+	if (Carrier == PlayerNumber()) 
+	{
+		Delay(1);
+		SpawnSpot("Mace", TID_PLAYERBASE+PlayerNumber(), TID_CHICKEN, 0);
+		//Thing_ChangeTID(0, 0);
+		Thing_SetSpecial(TID_CHICKEN, ACS_EXECUTE, 200, 0, 0);
+		ACS_Terminate(311, 0);
+		PrintBold(n:PlayerNumber()+1, s:" has dropped the Chicken!!");
+		AmbientSound("ctcchicken/sight", 127);
+		Carrier = -1;
+	}
+}
+
+script 305 RESPAWN 
+{ // Reset TID
+	Thing_ChangeTID(TID_PLAYERBASE+PlayerNumber(), 0);
+	Thing_ChangeTID(0, TID_PLAYERBASE+PlayerNumber());
+	Present[PlayerNumber()] = 1;
+}
+
+/*
+script 306 OPEN // Score display
+{
+    SetFont("TRES3FNT");
+	HudMessageBold(s:"SCORES"; 0, 100, CR_WHITE, 0.0, 0.04, 0);
+	
+	while (1) 
+	{
+		delay(35/2);
+		for (int i=0;i<MAX_PLAYERS;i++) 
+		{		
+			if ((Present[i] == 1 || Present[i] == -1) && PlayerInGame(i)) // Here or disconnected while score was flashing
+			{		
+				if (Carrier == i) 
+				{
+					if (FlashScore == 1) 
+					{
+						HudMessageBold(n:i+1, s:": ", i:Score[i]; HUDMSG_FADEOUT, (i+1), CR_WHITE, 0.005, 0.08+(0.02 * i), 1.0);
+						FlashScore = 0;
+					} 
+					else 
+					{
+						HudMessageBold(n:i+1, s:": ", i:Score[i]; HUDMSG_FADEOUT, (i+1), CR_GOLD, 0.005, 0.08+(0.02 * i), 1.0);
+						FlashScore = 1;
+					}
+				} 
+				else 
+					HudMessageBold(n:i+1, s:": ", i:Score[i]; HUDMSG_FADEOUT, (i+1), CR_UNTRANSLATED, 0.005, 0.08+(0.02 * i) , 1.0);
+			}
+		}
+	}
+}
+*/
+
+
+// Show maximum scores and player
+script 306 open
+{
+	int i, j, k, colour;
+	str tmp_scores_str;
+
+
+	// Get maximum scores and player index.
+	if (PlayerCount())
+    {
+		// Reset scores
+		for (i = 0; i < SHOW_MAX_PLAYERS; i++)
+		{
+			max_scores[i] = 0;
+			idx_player_max_scores[i] = 0;
+		}
+			
+		// Check all players
+		for (i = 0; i <= PlayerTopIndex(); i++)
+		{
+			if (PlayerInGame(i))	// Player is alive
+			{
+				for (j = 0; j < SHOW_MAX_PLAYERS ; j++)	// check ranks from highest to lowest
+				{
+					if (Score[i] > max_scores[j])	// Check if player has more scores than rank 1..n
+					{
+						for (k = SHOW_MAX_PLAYERS - 1; k >= j; k--)
+						{
+							if (k < SHOW_MAX_PLAYERS - 1)	// Don't shift last rank
+							{
+								max_scores[k + 1] = max_scores[k];		// Shift down 
+								idx_player_max_scores[k + 1] = idx_player_max_scores[k];
+							}
+						}
+						// Set current scores and index
+						max_scores[j] = Score[i];
+						idx_player_max_scores[j] = i;
+						break;
+					}
+				}
+			}
+		}
+	}
+ 
+	// Print players and scores each rank.
+	for (i = 0; i < SHOW_MAX_PLAYERS; i++)
+	{
+		if (max_scores[i] && PlayerInGame(idx_player_max_scores[i]))
+		{
+			if (Carrier == idx_player_max_scores[i]) 
+			{
+				if (FlashScore)
+				{
+					colour = CR_GOLD;
+					FlashScore = 0;
+				}
+				else
+				{
+					colour = CR_WHITE;
+					FlashScore = 1;
+				}
+			}
+			else
+				colour = CR_WHITE;
+		
+			SetFont("BIGFONT");
+			tmp_scores_str = StrParam(n: idx_player_max_scores[i] + 1);
+			HudMessageBold(s: tmp_scores_str, s: ": ", d: max_scores[i]; HUDMSG_FADEOUT, MAXSCORES_MSG_BASE + i, colour, 0.01, MAXSCORES_TEXT_POSY + i * MAXSCORES_TEXT_POSY_OFFS, 0.5, 0.5);
+		}
+	}
+	Delay(15);
+	Restart;
+}
+
+
+
+script 307 OPEN // Check for win
+{
+	int i;
+	bool mayExit = false;
+	
+    SetFont("TRES4FNT");	
+	if (WinningScore > 0) 
+	{
+		for (i=0; i<MAX_PLAYERS; i++) 
+		{
+			if (Present[i] && Score[i] >= WinningScore) 
+			{
+				ACS_Terminate(311, 0);
+				SetPlayerProperty(1, 1, 4);
+				PrintBold(n:i+1, s:" has won!!");
+				delay(5*35);
+				mayExit = true;
+			}
+		}
+	}
+				
+	if(mayExit)
+	{
+		for (i=0; i<PlayerTopIndex()+1; i++)
+			Log(n:i+1, s:" ended with a score of: ", d:score[i]);
+			
+		delay(2);
+			
+		Exit_Normal(0);
+	}
+	
+	delay(5);
+	restart;
+}
+
+script 308 OPEN // Watch for leaving players
+{
+	int i;
+
+    SetFont("TRES4FNT");
+	if (PlayerCount() < NumPlayers) // At least one person left
+	{
+		for (i = 0; i < MAX_PLAYERS; i++)	// Reset score if player leaves
+		{
+			if (GetPlayerInfo(i, PLAYERINFO_HEALTH) <= 0)
+				Score[i] = 0;
+		}
+			
+		NumPlayers = PlayerCount();
+		
+		if (ThingCount(T_NONE, TID_PLAYERBASE+Carrier) == 0) // The carrier is gone or dead
+		{
+			Delay(35); // Wait for death script to spawn a chicken, if it's going to
+			
+			if (ThingCount(T_NONE, TID_CHICKEN) == 0) // If still no chicken, then we spawn one now
+			{
+				PrintBold(s:"The carrier has fled in disgrace!");
+	
+				rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
+				
+				while(!Thing_Spawn(rand, 13, 0, TID_DUMMY)) //Let's spawn a dummy
+				{
+					rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
+					Delay(2);
+				}
+
+				delay(94);
+				Thing_Spawn(TID_DUMMY, 14, 0, TID_CHICKEN);
+				AmbientSound("ctcchicken/sight", 127);
+				Present[Carrier] = -1; // So the scoreboard can reset his color
+				Carrier = -1;				
+			}
+		}		
+	}
+	delay(1);
+	restart;
+}
+
+script 309 OPEN // Feather trail
+{
+	int x;
+	int y;
+	int z;	
+	delay(3);
+	
+	while(!gamestarted)
+		delay(1);
+	
+	If (Carrier != -1) 
+	{
+		x = GetActorX(TID_PLAYERBASE+Carrier);
+		y = GetActorY(TID_PLAYERBASE+Carrier);
+		z = GetActorZ(TID_PLAYERBASE+Carrier);
+		delay(5);
+		Thing_Remove(TID_CHICKEN+Trail);
+		Spawn("BlasterAmmo", x, y, z, TID_CHICKEN+Trail, 0);
+		Trail++;
+		if (Trail>10) Trail=1;
+	} 
+	else 
+	{
+		if (ThingCount(T_NONE, TID_CHICKEN)) 
+		{
+			x = GetActorX(TID_CHICKEN);
+			y = GetActorY(TID_CHICKEN);
+			z = GetActorZ(TID_CHICKEN);
+			delay(5);
+			{
+				Thing_Remove(TID_CHICKEN+Trail);
+				Spawn("BlasterAmmo", x, y, z, TID_CHICKEN+Trail, 0);
+				Trail++;
+				if (Trail>10) Trail=1;
+			}
+		}	
+	}
+	restart;
+}
+
+script 310 (void) // Emergency Chicken Saver script.  Keeping your chickens in the game since 1902.
+{
+	SetFont("TRES4FNT");
+	if (Carrier == -1 && ThingCount(T_NONE, TID_CHICKEN) == 0) 
+	{
+		Delay(95);
+		
+		if (Carrier == -1 && ThingCount(T_NONE, TID_CHICKEN) == 0) 
+		{
+			PrintBold(s:"No Chicken Detected!");
+			delay(35*2);
+    
+			rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
+			
+			while(!Thing_Spawn(rand, 13, 0, TID_DUMMY)) //Let's spawn a dummy
+			{
+				rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
+				Delay(2);
+			}
+	
+			delay(94);
+			Thing_Spawn(TID_DUMMY, 14, 0, TID_CHICKEN); //spawns the actual chicken on the chickenspawner
+			SetThingSpecial(TID_CHICKEN, ACS_Execute, 200, 0, 0, 0, 0);
+			PrintBold(s:"ChickenSaver(TM) Activated!!");
+			AmbientSound("ctcchicken/sight", 127);			
+		}
+	}
+	delay(95);
+	restart;
+}	
+
+
+script 311 (void) // Scoring
+{
+	delay(35);
+	Score[Carrier]++;
+	//Print(d:Carrier, n:Carrier+1);
+	restart;
+}
+
+/* 
+	Todo: Custom timelimit system needed to start the count right as the first
+	chicken spawns.. 
+*/
+
+script 312 OPEN
+{
+	while(true)
+	{
+		if (GetCvar("timelimit") > 0
+			&& (GetCvar("timelimit") * 60 )-1 == (Timer() / 35))
+		{
+			for (int i=0; i<PlayerTopIndex()+1; i++)
+				Log(n:i+1, s:" ended with a score of: ", d:score[i]);
+			
+			Exit_Normal(0);
+		}
+		//Print(d:Timer() / 35);
+		Delay(1);
+	}
+}
+
+/*
+script 399 (int max) net { // Change the winning score
+    SetFont("TRES4FNT");
+if(ActivatorTID()==TID_PLAYERBASE){
+	WinningScore = max;
+	PrintBold(s:"ScoreLimit set to ", i:max);}
+	if(ActivatorTID()>TID_PLAYERBASE){
+	Print(s:"Only the server creator can change the win limit!");
+	}
+}
+*/
+
+// Rename to sv_scorelimit?
+
+script 399 open
+{
+    SetFont("TRES4FNT");
+	int old_cvar = GetCvar("sv_winningscore");
+	bool msg_stat = false;
+	
+	while(true)
+	{	
+		if (GetCvar("sv_winningscore") > 0
+			&& GetCvar("sv_winningscore") <= 1000)
+		{
+			WinningScore = GetCvar("sv_winningscore");
+			msg_stat = false;
+		}
+		else if (GetCvar("sv_winningscore") > 1000
+			&& !msg_stat)
+		{
+			Log(s:"sv_winningscore: That value is too high!");
+			msg_stat = true;
+		}
+		
+		// For debug reasons only.
+		if (GetCvar("sv_winningscore") != old_cvar
+			&& !msg_stat)
+		{
+			Log(s:"ScoreLimit set to ", d:GetCvar("sv_winningscore"));
+			old_cvar = GetCvar("sv_winningscore");
+		}	
+		Delay(2);
+	}
+}
+
+script 200 (void) // Got the chicken
+{
+    SetFont("TRES4FNT");
+	SetPlayerProperty(0, 0, 8);
+	PrintBold(n:PlayerNumber()+1, s:" Has picked up the Chicken!!");
+	AmbientSound("ctcchicken/sight", 127);
+	Carrier = PlayerNumber();
+	//ClearInventory();
+	GiveInventory("Mace", 1);
+	SetWeapon("Mace");
+	ACS_Execute(311, 0, 0, 0, 0);
+	// Prevent carrier from using weapons
+	while (Carrier != -1 && Carrier == PlayerNumber()) 
+	{
+		SetPlayerProperty (0, 0, 5);
+		SetPlayerProperty (0, 0, 6);
+		SetPlayerProperty (0, 0, 7);
+		
+		if(CheckInventory("Health")>0)
+			Setweapon("Mace");
+
+		delay(1);
+	}
+}
