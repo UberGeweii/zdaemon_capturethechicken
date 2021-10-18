@@ -443,12 +443,13 @@ Script CTC_EMERGENCY (void)
 }	
 
 // Scoring
-Script CTC_SCORING (void)
+Script CTC_SCORING (int player)
 {
-	delay(35);
-	Score[Carrier]++;
-	//Print(d:Carrier, n:Carrier+1);
-	restart;
+	while (true)
+	{
+		delay(35);
+		Score[player]++;
+	}
 }
 
 /* 
