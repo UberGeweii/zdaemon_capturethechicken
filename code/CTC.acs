@@ -38,10 +38,8 @@ conflicts.
 #define T_CHICKENSPAWNER   13
 #define T_CHICKENPICKUP    14
 
-#define CTC_CATCH		200
 #define CTC_MAIN		301
 #define CTC_ENTER		302
-#define CTC_SOUND		303
 #define CTC_DEATH		304
 #define CTC_RESPAWN		305
 #define CTC_SHOWSCORES	306
@@ -119,7 +117,6 @@ Script CTC_MAIN Open
 		delay(1);
 	}
 	
-    SetThingSpecial(TID_CHICKEN, ACS_Execute, CTC_CATCH);
     Thing_Hate(TID_CHICKEN, TID_PLAYERBASE+ZD_Rand(0, PlayerTopIndex()));
     PrintBold(s:"A Chicken has appeared!");
 	AmbientSound("ctcchicken/sight", 127);
@@ -134,6 +131,9 @@ Script CTC_MAIN Open
 // Assign TID to new players
 Script CTC_ENTER Enter
 {
+	bool carry = false;
+	int oldsnd, snd;
+
 	Present[PlayerNumber()] = 1;
 
 	// Assign TID to new players
@@ -151,19 +151,49 @@ Script CTC_ENTER Enter
 	
 	while (GetActorProperty(0, APROP_Health) > 0)
 	{
-		delay(1);
-	}
-}
+		// if player carry the chicken
+		if (CheckInventory("Mace"))
+		{
+			// only once per catch
+			if (!carry)
+			{
+				carry = true;
 
-// Play sounds from chicken-holder
-Script CTC_SOUND OPEN
-{
-	Delay(random(3, 7) * 35);
-	
-	if (Carrier != -1)
-		ThingSound(TID_PLAYERBASE+Carrier, "ctcchicken/active", 127);
-	
-	restart;
+				PrintBold(n:PlayerNumber() + 1, s:" Has picked up the Chicken!!");
+				AmbientSound("ctcchicken/sight", 127);
+
+				// reset sound
+				oldsnd = 0;
+				snd = Zd_rand (3, 7);
+
+				// Scoring
+				ACS_Execute(CTC_SCORING, 0, PlayerNumber());
+			}
+
+			// play the sound
+			if (oldsnd == (snd * 35))
+			{
+				ThingSound(TID_PLAYERBASE + PlayerNumber(), "ctcchicken/active", 127);
+				snd = Zd_rand (3, 7);
+				oldsnd = 0;
+			}
+
+			// Drop a feather
+			// ?
+
+			SetPlayerProperty (0, false, PROP_INVULNERABILITY);
+			SetPlayerProperty (0, false, PROP_STRENGTH);
+			SetPlayerProperty (0, false, PROP_INVISIBILITY);
+		
+			if (CheckInventory("Health") > 0)
+				Setweapon("Mace");
+		}
+		else
+			carry = false;
+
+		delay(1);
+		oldsnd++;
+	}
 }
 
 // Release chicken when carrier dies
@@ -177,7 +207,6 @@ Script CTC_DEATH Death
 		Delay(1);
 		SpawnSpot("Mace", TID_PLAYERBASE+PlayerNumber(), TID_CHICKEN, 0);
 		//Thing_ChangeTID(0, 0);
-		Thing_SetSpecial(TID_CHICKEN, ACS_EXECUTE, CTC_CATCH);
 		ACS_Terminate(CTC_SCORING, 0);
 		PrintBold(n:PlayerNumber()+1, s:" has dropped the Chicken!!");
 		AmbientSound("ctcchicken/sight", 127);
@@ -443,7 +472,6 @@ Script CTC_EMERGENCY (void)
 	
 			delay(94);
 			Thing_Spawn(TID_DUMMY, T_CHICKENPICKUP, 0, TID_CHICKEN); //spawns the actual chicken on the chickenspawner
-			SetThingSpecial(TID_CHICKEN, ACS_Execute, CTC_CATCH);
 			PrintBold(s:"ChickenSaver(TM) Activated!!");
 			AmbientSound("ctcchicken/sight", 127);			
 		}
@@ -525,31 +553,5 @@ Script CTC_CVARS Open
 			old_cvar = GetCvar("sv_winningscore");
 		}	
 		Delay(2);
-	}
-}
-
-// Got the chicken
-Script CTC_CATCH (void)
-{
-    SetFont("TRES4FNT");
-	SetPlayerProperty(0, false, PROP_RADIATIONSUIT);
-	PrintBold(n:PlayerNumber()+1, s:" Has picked up the Chicken!!");
-	AmbientSound("ctcchicken/sight", 127);
-	Carrier = PlayerNumber();
-	//ClearInventory();
-	GiveInventory("Mace", 1);
-	SetWeapon("Mace");
-	ACS_Execute(CTC_SCORING, 0);
-	// Prevent carrier from using weapons
-	while (Carrier != -1 && Carrier == PlayerNumber()) 
-	{
-		SetPlayerProperty (0, false, PROP_INVULNERABILITY);
-		SetPlayerProperty (0, false, PROP_STRENGTH);
-		SetPlayerProperty (0, false, PROP_INVISIBILITY);
-		
-		if(CheckInventory("Health")>0)
-			Setweapon("Mace");
-
-		delay(1);
 	}
 }
