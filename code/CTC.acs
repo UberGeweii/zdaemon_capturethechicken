@@ -87,7 +87,7 @@ function void PrintScore (void)
 }
 
 // Show maximum scores and player
-function PrintScores (void)
+function void PrintScores (void)
 {
 	int i, j, k, colour;
 	str tmp_scores_str;
@@ -219,8 +219,8 @@ Script CTC_MAIN Open
     PrintBold(s:"A Chicken has appeared!");
 	AmbientSound("ctcchicken/sight", 127);
 	
-	for (int i=0;i<MAX_PLAYERS;i++)
-		Score[i] = 0;
+	for (int j = 0; j < MAX_PLAYERS; j++)
+		Score[j] = 0;
 		
 	gamestarted = true;
 	ACS_Execute(CTC_EMERGENCY, 0);
@@ -290,7 +290,7 @@ Script CTC_DEATH Death
 // Reset TID
 Script CTC_RESPAWN Respawn
 {
-	bool carry = false;
+	bool firsttime = false;
 	int oldsnd, snd;
 
 	// Assign TID to new players
@@ -314,9 +314,9 @@ Script CTC_RESPAWN Respawn
 		if (CheckInventory("Mace"))
 		{
 			// only once per catch
-			if (!carry)
+			if (!firsttime)
 			{
-				carry = true;
+				firsttime = true;
 				Carrier = PlayerNumber();
 
 				PrintBold(n:PlayerNumber() + 1, s:" Has picked up the Chicken!!");
@@ -350,7 +350,7 @@ Script CTC_RESPAWN Respawn
 				Setweapon("Mace");
 		}
 		else
-			carry = false;
+			firsttime = false;
 
 		delay(1);
 		oldsnd++;
