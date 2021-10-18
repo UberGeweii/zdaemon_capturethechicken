@@ -38,6 +38,21 @@ conflicts.
 #define T_CHICKENSPAWNER   13
 #define T_CHICKENPICKUP    14
 
+#define CTC_CATCH		200
+#define CTC_MAIN		301
+#define CTC_ENTER		302
+#define CTC_SOUND		303
+#define CTC_DEATH		304
+#define CTC_RESPAWN		305
+#define CTC_SHOWSCORES	306
+#define CTC_CHECKWIN	307
+#define CTC_LEAVERS		308
+#define CTC_FEATHER		309
+#define CTC_EMERGENCY	310
+#define CTC_SCORING		311
+#define CTC_TIMELIMIT	312
+#define CTC_CVARS		399
+
 // Define custom class names here.
 function str FixClassName(str classname)
 {
@@ -70,7 +85,8 @@ int NumPlayers = 0;
 int rand;
 bool gamestarted = false;
 
-script 301 open // Setup arena and spawn first chicken 
+// Setup arena and spawn first chicken
+Script CTC_MAIN Open
 {
 	Log(s:"[ZCTC]: Original idea by: Cutmanmike and HotWax. Ported to ZD by: UberGewei and Krawa");
     
@@ -103,7 +119,7 @@ script 301 open // Setup arena and spawn first chicken
 		delay(1);
 	}
 	
-    SetThingSpecial(TID_CHICKEN, ACS_Execute, 200, 0, 0, 0, 0);
+    SetThingSpecial(TID_CHICKEN, ACS_Execute, CTC_CATCH);
     Thing_Hate(TID_CHICKEN, TID_PLAYERBASE+ZD_Rand(0, PlayerTopIndex()));
     PrintBold(s:"A Chicken has appeared!");
 	AmbientSound("ctcchicken/sight", 127);
@@ -112,11 +128,12 @@ script 301 open // Setup arena and spawn first chicken
 		Score[i] = 0;
 		
 	gamestarted = true;
-	ACS_Execute(310, 0, 0, 0, 0);	
+	ACS_Execute(CTC_EMERGENCY, 0);	
 }
 
-script 302 Enter
-{	// Assign TID to new players
+// Assign TID to new players
+Script CTC_ENTER Enter
+{
     SetFont("TRES4FNT");
 	Present[PlayerNumber()] = 1;
 	Thing_ChangeTID(0, TID_PLAYERBASE+PlayerNumber());
@@ -128,7 +145,9 @@ script 302 Enter
 	SetPlayerProperty(0, false, PROP_INSTANTWEAPONSWITCH);
 }
 
-script 303 OPEN {	// Play sounds from chicken-holder
+// Play sounds from chicken-holder
+Script CTC_SOUND OPEN
+{
 	Delay(random(3, 7) * 35);
 	
 	if (Carrier != -1)
@@ -137,7 +156,9 @@ script 303 OPEN {	// Play sounds from chicken-holder
 	restart;
 }
 
-script 304 DEATH { // Release chicken when carrier dies
+// Release chicken when carrier dies
+Script CTC_DEATH Death
+{ 
     SetFont("TRES4FNT");
 	ClearInventory();
 
@@ -146,15 +167,15 @@ script 304 DEATH { // Release chicken when carrier dies
 		Delay(1);
 		SpawnSpot("Mace", TID_PLAYERBASE+PlayerNumber(), TID_CHICKEN, 0);
 		//Thing_ChangeTID(0, 0);
-		Thing_SetSpecial(TID_CHICKEN, ACS_EXECUTE, 200, 0, 0);
-		ACS_Terminate(311, 0);
+		Thing_SetSpecial(TID_CHICKEN, ACS_EXECUTE, CTC_CATCH);
+		ACS_Terminate(CTC_SCORING, 0);
 		PrintBold(n:PlayerNumber()+1, s:" has dropped the Chicken!!");
 		AmbientSound("ctcchicken/sight", 127);
 		Carrier = -1;
 	}
 }
 
-script 305 RESPAWN 
+Script CTC_RESPAWN Respawn
 { // Reset TID
 	Thing_ChangeTID(TID_PLAYERBASE+PlayerNumber(), 0);
 	Thing_ChangeTID(0, TID_PLAYERBASE+PlayerNumber());
@@ -197,7 +218,7 @@ script 306 OPEN // Score display
 
 
 // Show maximum scores and player
-script 306 open
+Script CTC_SHOWSCORES Open
 {
 	int i, j, k, colour;
 	str tmp_scores_str;
@@ -271,8 +292,8 @@ script 306 open
 }
 
 
-
-script 307 OPEN // Check for win
+// Check for win
+Script CTC_CHECKWIN Open
 {
 	int i;
 	bool mayExit = false;
@@ -284,7 +305,7 @@ script 307 OPEN // Check for win
 		{
 			if (Present[i] && Score[i] >= WinningScore) 
 			{
-				ACS_Terminate(311, 0);
+				ACS_Terminate(CTC_SCORING, 0);
 				SetPlayerProperty(1, true, PROP_TOTALLYFROZEN);
 				PrintBold(n:i+1, s:" has won!!");
 				delay(5*35);
@@ -304,7 +325,8 @@ script 307 OPEN // Check for win
 	restart;
 }
 
-script 308 OPEN // Watch for leaving players
+// Watch for leaving players
+Script CTC_LEAVERS Open
 {
 	int i;
 
@@ -347,7 +369,8 @@ script 308 OPEN // Watch for leaving players
 	restart;
 }
 
-script 309 OPEN // Feather trail
+// Feather trail
+Script CTC_FEATHER Open
 {
 	int x;
 	int y;
@@ -387,7 +410,8 @@ script 309 OPEN // Feather trail
 	restart;
 }
 
-script 310 (void) // Emergency Chicken Saver script.  Keeping your chickens in the game since 1902.
+// Emergency Chicken Saver script.  Keeping your chickens in the game since 1902.
+Script CTC_EMERGENCY (void)
 {
 	SetFont("TRES4FNT");
 	if (Carrier == -1 && ThingCount(T_NONE, TID_CHICKEN) == 0) 
@@ -409,7 +433,7 @@ script 310 (void) // Emergency Chicken Saver script.  Keeping your chickens in t
 	
 			delay(94);
 			Thing_Spawn(TID_DUMMY, T_CHICKENPICKUP, 0, TID_CHICKEN); //spawns the actual chicken on the chickenspawner
-			SetThingSpecial(TID_CHICKEN, ACS_Execute, 200, 0, 0, 0, 0);
+			SetThingSpecial(TID_CHICKEN, ACS_Execute, CTC_CATCH);
 			PrintBold(s:"ChickenSaver(TM) Activated!!");
 			AmbientSound("ctcchicken/sight", 127);			
 		}
@@ -418,8 +442,8 @@ script 310 (void) // Emergency Chicken Saver script.  Keeping your chickens in t
 	restart;
 }	
 
-
-script 311 (void) // Scoring
+// Scoring
+Script CTC_SCORING (void)
 {
 	delay(35);
 	Score[Carrier]++;
@@ -432,7 +456,7 @@ script 311 (void) // Scoring
 	chicken spawns.. 
 */
 
-script 312 OPEN
+Script CTC_TIMELIMIT Open
 {
 	while(true)
 	{
@@ -461,7 +485,7 @@ if(ActivatorTID()==TID_PLAYERBASE){
 
 // Rename to sv_scorelimit?
 
-script 399 open
+Script CTC_CVARS Open
 {
     SetFont("TRES4FNT");
 	int old_cvar = GetCvar("sv_winningscore");
@@ -493,7 +517,8 @@ script 399 open
 	}
 }
 
-script 200 (void) // Got the chicken
+// Got the chicken
+Script CTC_CATCH (void)
 {
     SetFont("TRES4FNT");
 	SetPlayerProperty(0, false, PROP_RADIATIONSUIT);
@@ -503,7 +528,7 @@ script 200 (void) // Got the chicken
 	//ClearInventory();
 	GiveInventory("Mace", 1);
 	SetWeapon("Mace");
-	ACS_Execute(311, 0, 0, 0, 0);
+	ACS_Execute(CTC_SCORING, 0);
 	// Prevent carrier from using weapons
 	while (Carrier != -1 && Carrier == PlayerNumber()) 
 	{
