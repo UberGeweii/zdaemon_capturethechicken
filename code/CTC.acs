@@ -179,7 +179,8 @@ Script CTC_ENTER Enter
 			}
 
 			// Drop a feather
-			// ?
+			if (!(oldsnd % 8))
+				DropItem (TID_PLAYERBASE + PlayerNumber(), "Feather");
 
 			SetPlayerProperty (0, false, PROP_INVULNERABILITY);
 			SetPlayerProperty (0, false, PROP_STRENGTH);
@@ -402,47 +403,6 @@ Script CTC_LEAVERS Open
 		}		
 	}
 	delay(1);
-	restart;
-}
-
-// Feather trail
-Script CTC_FEATHER Open
-{
-	int x;
-	int y;
-	int z;	
-	delay(3);
-	
-	while(!gamestarted)
-		delay(1);
-	
-	If (Carrier != -1) 
-	{
-		x = GetActorX(TID_PLAYERBASE+Carrier);
-		y = GetActorY(TID_PLAYERBASE+Carrier);
-		z = GetActorZ(TID_PLAYERBASE+Carrier);
-		delay(5);
-		Thing_Remove(TID_CHICKEN+Trail);
-		Spawn("BlasterAmmo", x, y, z, TID_CHICKEN+Trail, 0);
-		Trail++;
-		if (Trail>10) Trail=1;
-	} 
-	else 
-	{
-		if (ThingCount(T_NONE, TID_CHICKEN)) 
-		{
-			x = GetActorX(TID_CHICKEN);
-			y = GetActorY(TID_CHICKEN);
-			z = GetActorZ(TID_CHICKEN);
-			delay(5);
-			{
-				Thing_Remove(TID_CHICKEN+Trail);
-				Spawn("BlasterAmmo", x, y, z, TID_CHICKEN+Trail, 0);
-				Trail++;
-				if (Trail>10) Trail=1;
-			}
-		}	
-	}
 	restart;
 }
 
