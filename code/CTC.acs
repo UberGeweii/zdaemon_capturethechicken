@@ -198,19 +198,17 @@ Script CTC_ENTER Enter
 
 // Release chicken when carrier dies
 Script CTC_DEATH Death
-{ 
+{
     SetFont("TRES4FNT");
-	ClearInventory();
 
-	if (Carrier == PlayerNumber()) 
+	if (CheckInventory("Mace"))
 	{
-		Delay(1);
-		SpawnSpot("Mace", TID_PLAYERBASE+PlayerNumber(), TID_CHICKEN, 0);
-		//Thing_ChangeTID(0, 0);
 		ACS_Terminate(CTC_SCORING, 0);
-		PrintBold(n:PlayerNumber()+1, s:" has dropped the Chicken!!");
+		DropItem (TID_PLAYERBASE + PlayerNumber(), "Mace");
+		Thing_ChangeTID(TID_PLAYERBASE + PlayerNumber(), 0);
+		
+		PrintBold(n:PlayerNumber() + 1, s:" has dropped the Chicken!!");
 		AmbientSound("ctcchicken/sight", 127);
-		Carrier = -1;
 	}
 }
 
