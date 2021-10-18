@@ -66,7 +66,6 @@ int max_scores[MAX_PLAYERS];
 int idx_player_max_scores[MAX_PLAYERS];
 int FlashScore = 0;
 int WinningScore;
-int Trail = 1;
 int NumPlayers = 0;
 int rand;
 bool gamestarted = false;
