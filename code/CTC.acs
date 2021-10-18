@@ -42,7 +42,6 @@ conflicts.
 #define CTC_ENTER		302
 #define CTC_DEATH		304
 #define CTC_RESPAWN		305
-#define CTC_SHOWSCORES	306
 #define CTC_LEAVERS		308
 #define CTC_FEATHER		309
 #define CTC_EMERGENCY	310
@@ -56,6 +55,77 @@ function void PrintScore (void)
 			Log(n:i+1, s:" ended with a score of: ", d:score[i]);
 }
 
+// Show maximum scores and player
+function PrintScores (void)
+{
+	int i, j, k, colour;
+	str tmp_scores_str;
+
+	// Get maximum scores and player index.
+	if (PlayerCount())
+    {
+		// Reset scores
+		for (i = 0; i < SHOW_MAX_PLAYERS; i++)
+		{
+			max_scores[i] = 0;
+			idx_player_max_scores[i] = 0;
+		}
+			
+		// Check all players
+		for (i = 0; i <= PlayerTopIndex(); i++)
+		{
+			if (PlayerInGame(i))	// Player is alive
+			{
+				for (j = 0; j < SHOW_MAX_PLAYERS ; j++)	// check ranks from highest to lowest
+				{
+					if (Score[i] > max_scores[j])	// Check if player has more scores than rank 1..n
+					{
+						for (k = SHOW_MAX_PLAYERS - 1; k >= j; k--)
+						{
+							if (k < SHOW_MAX_PLAYERS - 1)	// Don't shift last rank
+							{
+								max_scores[k + 1] = max_scores[k];		// Shift down 
+								idx_player_max_scores[k + 1] = idx_player_max_scores[k];
+							}
+						}
+						
+						// Set current scores and index
+						max_scores[j] = Score[i];
+						idx_player_max_scores[j] = i;
+						break;
+					}
+				}
+			}
+		}
+	}
+ 
+	// Print players and scores each rank.
+	for (i = 0; i < SHOW_MAX_PLAYERS; i++)
+	{
+		if (max_scores[i] && PlayerInGame(idx_player_max_scores[i]))
+		{
+			if (Carrier == idx_player_max_scores[i]) 
+			{
+				if (FlashScore)
+				{
+					colour = CR_GOLD;
+					FlashScore = 0;
+				}
+				else
+				{
+					colour = CR_WHITE;
+					FlashScore = 1;
+				}
+			}
+			else
+				colour = CR_WHITE;
+		
+			SetFont("BIGFONT");
+			tmp_scores_str = StrParam(n: idx_player_max_scores[i] + 1);
+			HudMessageBold(s: tmp_scores_str, s: ": ", d: max_scores[i]; HUDMSG_FADEOUT, MAXSCORES_MSG_BASE + i, colour, 0.01, MAXSCORES_TEXT_POSY + i * MAXSCORES_TEXT_POSY_OFFS, 0.5, 0.5);
+		}
+	}
+}
 
 int Carrier = -1;
 int Score[MAX_PLAYERS];
@@ -157,8 +227,10 @@ Script CTC_MAIN Open
 			Exit_Normal(0);
 		}
 
+		// LeaderBoard
+		PrintScores();
 
-		delay(5);
+		delay(10);
 	}
 }
 
@@ -254,80 +326,6 @@ Script CTC_DEATH Death
 Script CTC_RESPAWN Respawn
 {
 	// Later
-}
-
-// Show maximum scores and player
-Script CTC_SHOWSCORES Open
-{
-	int i, j, k, colour;
-	str tmp_scores_str;
-
-
-	// Get maximum scores and player index.
-	if (PlayerCount())
-    {
-		// Reset scores
-		for (i = 0; i < SHOW_MAX_PLAYERS; i++)
-		{
-			max_scores[i] = 0;
-			idx_player_max_scores[i] = 0;
-		}
-			
-		// Check all players
-		for (i = 0; i <= PlayerTopIndex(); i++)
-		{
-			if (PlayerInGame(i))	// Player is alive
-			{
-				for (j = 0; j < SHOW_MAX_PLAYERS ; j++)	// check ranks from highest to lowest
-				{
-					if (Score[i] > max_scores[j])	// Check if player has more scores than rank 1..n
-					{
-						for (k = SHOW_MAX_PLAYERS - 1; k >= j; k--)
-						{
-							if (k < SHOW_MAX_PLAYERS - 1)	// Don't shift last rank
-							{
-								max_scores[k + 1] = max_scores[k];		// Shift down 
-								idx_player_max_scores[k + 1] = idx_player_max_scores[k];
-							}
-						}
-						// Set current scores and index
-						max_scores[j] = Score[i];
-						idx_player_max_scores[j] = i;
-						break;
-					}
-				}
-			}
-		}
-	}
- 
-	// Print players and scores each rank.
-	for (i = 0; i < SHOW_MAX_PLAYERS; i++)
-	{
-		if (max_scores[i] && PlayerInGame(idx_player_max_scores[i]))
-		{
-			if (Carrier == idx_player_max_scores[i]) 
-			{
-				if (FlashScore)
-				{
-					colour = CR_GOLD;
-					FlashScore = 0;
-				}
-				else
-				{
-					colour = CR_WHITE;
-					FlashScore = 1;
-				}
-			}
-			else
-				colour = CR_WHITE;
-		
-			SetFont("BIGFONT");
-			tmp_scores_str = StrParam(n: idx_player_max_scores[i] + 1);
-			HudMessageBold(s: tmp_scores_str, s: ": ", d: max_scores[i]; HUDMSG_FADEOUT, MAXSCORES_MSG_BASE + i, colour, 0.01, MAXSCORES_TEXT_POSY + i * MAXSCORES_TEXT_POSY_OFFS, 0.5, 0.5);
-		}
-	}
-	Delay(15);
-	Restart;
 }
 
 // Watch for leaving players
