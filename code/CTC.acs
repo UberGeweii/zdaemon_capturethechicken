@@ -331,47 +331,23 @@ Script CTC_CHECKWIN Open
 }
 
 // Watch for leaving players
-Script CTC_LEAVERS Open
+Script CTC_LEAVERS (int player) Disconnect
 {
-	int i;
+	SetFont("TRES4FNT");
 
-    SetFont("TRES4FNT");
-	if (PlayerCount() < NumPlayers) // At least one person left
+	Score[player] = 0;
+
+	NumPlayers = PlayerCount();
+
+	// if the disconencted player had the chicken
+	if (Carrier == player)
 	{
-		for (i = 0; i < MAX_PLAYERS; i++)	// Reset score if player leaves
-		{
-			if (GetPlayerInfo(i, PLAYERINFO_HEALTH) <= 0)
-				Score[i] = 0;
-		}
-			
-		NumPlayers = PlayerCount();
-		
-		if (ThingCount(T_NONE, TID_PLAYERBASE+Carrier) == 0) // The carrier is gone or dead
-		{
-			Delay(35); // Wait for death script to spawn a chicken, if it's going to
-			
-			if (ThingCount(T_NONE, TID_CHICKEN) == 0) // If still no chicken, then we spawn one now
-			{
-				PrintBold(s:"The carrier has fled in disgrace!");
-	
-				rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
-				
-				while(!Thing_Spawn(rand, T_CHICKENSPAWNER, 0, TID_DUMMY)) //Let's spawn a dummy
-				{
-					rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
-					Delay(2);
-				}
+		// everything explode
+		// TODO
+		// Spawn a chicken somewhere
 
-				delay(94);
-				Thing_Spawn(TID_DUMMY, T_CHICKENPICKUP, 0, TID_CHICKEN);
-				AmbientSound("ctcchicken/sight", 127);
-				Present[Carrier] = -1; // So the scoreboard can reset his color
-				Carrier = -1;				
-			}
-		}		
+		Carrier = -1;
 	}
-	delay(1);
-	restart;
 }
 
 // Emergency Chicken Saver script.  Keeping your chickens in the game since 1902.
