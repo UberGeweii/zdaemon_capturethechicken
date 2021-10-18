@@ -21,8 +21,8 @@ Original idea by Cutmanmike and HotWax
 #define T_CHICKENSPAWNER   			13
 #define T_CHICKENPICKUP    			14
 
-#define VID_WIDTH					640
-#define VID_HEIGHT					480
+#define VID_WIDTH					800
+#define VID_HEIGHT					600
 
 #define CTC_MAIN					300
 #define CTC_ENTER					301
@@ -38,7 +38,7 @@ Original idea by Cutmanmike and HotWax
 #define MAX_PLAYERS					64
 #define SHOW_MAX_PLAYERS 			32
 #define MAXSCORES_MSG_BASE			1		// for rank 1
-#define MAXSCORES_TEXT_POSY_OFFS	0.02
+#define MAXSCORES_TEXT_POSY_OFFS	16.0
 #define SEC							35
 
 /* TID Assignments:
@@ -153,7 +153,7 @@ function void PrintScores (void)
 		
 			SetFont("BIGFONT");
 			tmp_scores_str = StrParam(n: idx_player_max_scores[i] + 1);
-			HudMessageBold(s: tmp_scores_str, s: ": ", d: max_scores[i]; HUDMSG_FADEOUT, MAXSCORES_MSG_BASE + i, colour, 0.1, (VID_HEIGHT / 10) * 1.0 + i * MAXSCORES_TEXT_POSY_OFFS, 0.5, 0.5);
+			HudMessageBold(s: tmp_scores_str, s: ": ", d: max_scores[i]; HUDMSG_FADEOUT, MAXSCORES_MSG_BASE + i, colour, 0.1, (VID_HEIGHT / 10) * 1.0 + i * MAXSCORES_TEXT_POSY_OFFS, 0.5, 0);
 		}
 	}
 }
@@ -184,15 +184,16 @@ Script CTC_MAIN Open
 
 	Carrier = -1;
 
+	SetHudSize(VID_WIDTH, VID_HEIGHT, false);
+
 	// wait for players
 	while (PlayerCount() < 2)
 	{
 		Delay(70);
 		SetFont("TRES3FNT");
-		HudMessageBold(s:"Waiting for atleast 2 players"; HUDMSG_FADEINOUT, 100, CR_WHITE, (VID_WIDTH / 2) * 1.0, (VID_HEIGHT / 3) * 1.0, 0.5, 0.5);
+		HudMessageBold(s:"Waiting for atleast 2 players"; HUDMSG_FADEINOUT, 100, CR_WHITE, (VID_WIDTH / 2) * 1.0, (VID_HEIGHT - (VID_HEIGHT / 3)) * 1.0, 0.5, 0.5);
 	}
 
-	SetHudSize(VID_WIDTH, VID_HEIGHT, false);
 	SetFont("TRES4FNT");
 
 	SetPlayerProperty(1, false, PROP_TOTALLYFROZEN);
@@ -223,7 +224,7 @@ Script CTC_MAIN Open
 		Score[j] = 0;
 		
 	gamestarted = true;
-	ACS_Execute(CTC_EMERGENCY, 0);
+	//ACS_Execute(CTC_EMERGENCY, 0);
 
 	// main loop
 	while (true)
@@ -266,6 +267,9 @@ Script CTC_MAIN Open
 // Assign TID to new players
 Script CTC_ENTER Enter
 {
+	NumPlayers = PlayerCount();
+	SetPlayerProperty(0, true, PROP_TOTALLYFROZEN);
+
 	ACS_ExecuteAlways(CTC_RESPAWN, 0);
 }
 
@@ -274,7 +278,7 @@ Script CTC_DEATH Death
 {
     SetFont("TRES4FNT");
 
-	if (Carrier == PlayerNumber()) 
+	if (Carrier == PlayerNumber())
 	{
 		ACS_Terminate(CTC_SCORING, 0);
 		DropItem (TID_PLAYERBASE + PlayerNumber(), "Mace");
@@ -284,7 +288,10 @@ Script CTC_DEATH Death
 		AmbientSound("ctcchicken/sight", 127);
 
 		Carrier = -1;
+		terminate;
 	}
+
+	Thing_ChangeTID(TID_PLAYERBASE + PlayerNumber(), 0);
 }
 
 // Reset TID
@@ -294,21 +301,19 @@ Script CTC_RESPAWN Respawn
 	int oldsnd, snd;
 
 	// Assign TID to new players
-	Thing_ChangeTID(0, TID_PLAYERBASE+PlayerNumber());
-	NumPlayers = PlayerCount();
-
+	Thing_ChangeTID(0, TID_PLAYERBASE + PlayerNumber());
+	
 	// remove weapon if player has it
 	if (CheckInventory("Mace"))
 		TakeInventory("Mace", 1);
 
-	SetPlayerProperty(0, true, PROP_TOTALLYFROZEN);
 
 	while (!gamestarted)
 		delay(1);
 
     SetFont("TRES4FNT");
 	
-	while (GetActorProperty(0, APROP_Health) > 0)
+	while (GetActorProperty(TID_PLAYERBASE + PlayerNumber(), APROP_Health) > 0)
 	{
 		// if player carry the chicken
 		if (CheckInventory("Mace"))
@@ -340,7 +345,8 @@ Script CTC_RESPAWN Respawn
 
 			// Drop a feather
 			if (!(oldsnd % 8))
-				DropItem (TID_PLAYERBASE + PlayerNumber(), "Feather");
+				//DropItem (TID_PLAYERBASE + PlayerNumber(), "Feather");
+				SpawnForced ("Feather", GetActorX(TID_PLAYERBASE + PlayerNumber ()), GetActorY(TID_PLAYERBASE + PlayerNumber ()), GetActorZ(TID_PLAYERBASE + PlayerNumber ()) + 48.0, 0);
 
 			SetPlayerProperty (0, false, PROP_INVULNERABILITY);
 			SetPlayerProperty (0, false, PROP_STRENGTH);

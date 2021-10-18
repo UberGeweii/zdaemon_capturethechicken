@@ -178,7 +178,7 @@ Frame 1473
 Sprite number = 222
 Sprite subnumber = 1
 Duration = 2
-Next frame = 1514
+Next frame = 1476
 [CODEPTR]
 Frame 1473 = ChicChase
 
@@ -317,22 +317,48 @@ Pain sound = chicken/pain
 Attack sound = chicken/peck
 Death sound = chicken/death
 Action sound = chicken/active
-Bits = SPECIAL|FLOORCLIP|PASSMOBJ|PUSHWALL|SHOOTABLE|SOLID|WINDTHRUST
+Bits = SPECIAL|FLOORCLIP|PASSMOBJ|PUSHWALL|SHOOTABLE|SOLID|WINDTHRUST|HEIGHTTOUCH
 
 
 Weapon 15 (Mace)
 Ammo type = 5
 Ammo use = 1
 Min ammo = -1
-Shooting frame = 1218
 
+# Ready
+Frame 1216
+Sprite number = 203
+Sprite subnumber = 0
+Duration = 1
+Next frame = 1216
+[CODEPTR]
+Frame 1216 = WeaponReady
 
+# Down
+Frame 1217
+Sprite number = 203
+Sprite subnumber = 0
+Duration = 1
+Next frame = 1217
+[CODEPTR]
+Frame 1217 = Lower
+
+# Raise
 Frame 1218
+Sprite number = 203
+Sprite subnumber = 0
+Duration = 1
+Next frame = 1218
+[CODEPTR]
+Frame 1218 = Raise
+
+# Shoot
+Frame 1219
 Sprite number = 203
 Sprite subnumber = 0
 Args1 = 94
 Args2 = 0
 Duration = 70
-Next frame = 1215
+Next frame = 1216
 [CODEPTR]
-Frame 1218 = PlayWeaponSound
+Frame 1219 = PlayWeaponSound
