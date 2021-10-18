@@ -9,7 +9,28 @@
 ===================================================
 Original idea by Cutmanmike and HotWax
 */
-   
+
+
+//===================================================
+//
+// Defines
+//
+//===================================================
+
+// Define new monster SpawnIDs here.
+#define T_CHICKENSPAWNER   			13
+#define T_CHICKENPICKUP    			14
+
+#define VID_WIDTH					640
+#define VID_HEIGHT					480
+
+#define CTC_MAIN					300
+#define CTC_ENTER					301
+#define CTC_DEATH					302
+#define CTC_RESPAWN					303
+#define CTC_LEAVERS					304
+#define CTC_EMERGENCY				305
+#define CTC_SCORING					306
 
 #define TID_PLAYERBASE				1000	// base to +MAX_PLAYERS
 #define TID_CHICKEN					1110	// +1 .. +10 for feathers
@@ -33,20 +54,29 @@ be helped, and add new assignments to this list to avoid
 conflicts.
 */
 
-// Define new monster SpawnIDs here.
-#define T_CHICKENSPAWNER   13
-#define T_CHICKENPICKUP    14
 
-#define VID_WIDTH		640
-#define VID_HEIGHT		480
+//===================================================
+//
+// Variables
+//
+//===================================================
 
-#define CTC_MAIN		301
-#define CTC_ENTER		302
-#define CTC_DEATH		304
-#define CTC_RESPAWN		305
-#define CTC_LEAVERS		308
-#define CTC_EMERGENCY	310
-#define CTC_SCORING		311
+int Carrier = -1;
+int Score[MAX_PLAYERS];
+int max_scores[MAX_PLAYERS];
+int idx_player_max_scores[MAX_PLAYERS];
+int FlashScore = 0;
+int WinningScore;
+int NumPlayers = 0;
+int rand;
+bool gamestarted = false;
+
+
+//===================================================
+//
+// Functions
+//
+//===================================================
 
 // Print final score to the console
 function void PrintScore (void)
@@ -128,15 +158,12 @@ function PrintScores (void)
 	}
 }
 
-int Carrier = -1;
-int Score[MAX_PLAYERS];
-int max_scores[MAX_PLAYERS];
-int idx_player_max_scores[MAX_PLAYERS];
-int FlashScore = 0;
-int WinningScore;
-int NumPlayers = 0;
-int rand;
-bool gamestarted = false;
+
+//===================================================
+//
+// Scripts
+//
+//===================================================
 
 // Setup arena and spawn first chicken
 Script CTC_MAIN Open
@@ -354,7 +381,7 @@ Script CTC_LEAVERS (int player) Disconnect
 Script CTC_EMERGENCY (void)
 {
 	SetFont("TRES4FNT");
-	
+
 	if (Carrier == -1 && ThingCount(T_NONE, TID_CHICKEN) == 0) 
 	{
 		Delay(95);
