@@ -50,17 +50,6 @@ conflicts.
 #define CTC_SCORING		311
 #define CTC_TIMELIMIT	312
 
-// Define custom class names here.
-function str FixClassName(str classname)
-{
-	switch (classname)
-	{
-		case "ChickenSpawner":      return "Mummy";
-	}
-	// Return it unchanged if it didn't match anything
-	return classname;
-}
-
 // Print final score to the console
 function void PrintScore (void)
 {
