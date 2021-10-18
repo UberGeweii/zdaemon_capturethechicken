@@ -134,15 +134,25 @@ Script CTC_MAIN Open
 // Assign TID to new players
 Script CTC_ENTER Enter
 {
-    SetFont("TRES4FNT");
 	Present[PlayerNumber()] = 1;
+
+	// Assign TID to new players
 	Thing_ChangeTID(0, TID_PLAYERBASE+PlayerNumber());
 	NumPlayers = PlayerCount();
 
-	if (CheckInventory("Chicken", 0))
-		TakeInventory("Chicken", 1);
+	// remove weapon if player has it
+	if (CheckInventory("Mace"))
+		TakeInventory("Mace", 1);
 
-	SetPlayerProperty(0, false, PROP_INSTANTWEAPONSWITCH);
+	while (!gamestarted)
+		delay(1);
+
+    SetFont("TRES4FNT");
+	
+	while (GetActorProperty(0, APROP_Health) > 0)
+	{
+		delay(1);
+	}
 }
 
 // Play sounds from chicken-holder
