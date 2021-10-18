@@ -219,40 +219,6 @@ Script CTC_RESPAWN Respawn
 	// Later
 }
 
-/*
-script 306 OPEN // Score display
-{
-    SetFont("TRES3FNT");
-	HudMessageBold(s:"SCORES"; 0, 100, CR_WHITE, 0.0, 0.04, 0);
-	
-	while (1) 
-	{
-		delay(35/2);
-		for (int i=0;i<MAX_PLAYERS;i++) 
-		{		
-			if ((Present[i] == 1 || Present[i] == -1) && PlayerInGame(i)) // Here or disconnected while score was flashing
-			{		
-				if (Carrier == i) 
-				{
-					if (FlashScore == 1) 
-					{
-						HudMessageBold(n:i+1, s:": ", i:Score[i]; HUDMSG_FADEOUT, (i+1), CR_WHITE, 0.005, 0.08+(0.02 * i), 1.0);
-						FlashScore = 0;
-					} 
-					else 
-					{
-						HudMessageBold(n:i+1, s:": ", i:Score[i]; HUDMSG_FADEOUT, (i+1), CR_GOLD, 0.005, 0.08+(0.02 * i), 1.0);
-						FlashScore = 1;
-					}
-				} 
-				else 
-					HudMessageBold(n:i+1, s:": ", i:Score[i]; HUDMSG_FADEOUT, (i+1), CR_UNTRANSLATED, 0.005, 0.08+(0.02 * i) , 1.0);
-			}
-		}
-	}
-}
-*/
-
 
 // Show maximum scores and player
 Script CTC_SHOWSCORES Open
@@ -466,18 +432,6 @@ Script CTC_TIMELIMIT Open
 		Delay(1);
 	}
 }
-
-/*
-script 399 (int max) net { // Change the winning score
-    SetFont("TRES4FNT");
-if(ActivatorTID()==TID_PLAYERBASE){
-	WinningScore = max;
-	PrintBold(s:"ScoreLimit set to ", i:max);}
-	if(ActivatorTID()>TID_PLAYERBASE){
-	Print(s:"Only the server creator can change the win limit!");
-	}
-}
-*/
 
 // Rename to sv_scorelimit?
 
