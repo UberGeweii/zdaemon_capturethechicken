@@ -49,7 +49,6 @@ conflicts.
 #define CTC_EMERGENCY	310
 #define CTC_SCORING		311
 #define CTC_TIMELIMIT	312
-#define CTC_CVARS		399
 
 // Define custom class names here.
 function str FixClassName(str classname)
@@ -77,7 +76,7 @@ int Present[MAX_PLAYERS];
 int max_scores[MAX_PLAYERS];
 int idx_player_max_scores[MAX_PLAYERS];
 int FlashScore = 0;
-int WinningScore = 100;
+int WinningScore;
 int Trail = 1;
 int NumPlayers = 0;
 int rand;
@@ -87,7 +86,19 @@ bool gamestarted = false;
 Script CTC_MAIN Open
 {
 	Log(s:"[ZCTC]: Original idea by: Cutmanmike and HotWax. Ported to ZD by: UberGewei and Krawa");
-    
+
+	// Gamemode setup
+	// This is my vision : Score should not not be changed mid-game.
+	
+	// Score Limit
+	WinningScore = GetCvar("sv_winningscore");
+
+	if (WinningScore <= 0 || WinningScore > 1000)
+	{
+		Log(s:"sv_winningscore has a wrong value (should be between 1 & 1000). Using default (100)");
+		WinningScore = 100;
+	}
+
 	while(PlayerCount() < 2) // wait for players
 	{
 		Delay(70);
@@ -430,39 +441,5 @@ Script CTC_TIMELIMIT Open
 		}
 		//Print(d:Timer() / 35);
 		Delay(1);
-	}
-}
-
-// Rename to sv_scorelimit?
-
-Script CTC_CVARS Open
-{
-    SetFont("TRES4FNT");
-	int old_cvar = GetCvar("sv_winningscore");
-	bool msg_stat = false;
-	
-	while(true)
-	{	
-		if (GetCvar("sv_winningscore") > 0
-			&& GetCvar("sv_winningscore") <= 1000)
-		{
-			WinningScore = GetCvar("sv_winningscore");
-			msg_stat = false;
-		}
-		else if (GetCvar("sv_winningscore") > 1000
-			&& !msg_stat)
-		{
-			Log(s:"sv_winningscore: That value is too high!");
-			msg_stat = true;
-		}
-		
-		// For debug reasons only.
-		if (GetCvar("sv_winningscore") != old_cvar
-			&& !msg_stat)
-		{
-			Log(s:"ScoreLimit set to ", d:GetCvar("sv_winningscore"));
-			old_cvar = GetCvar("sv_winningscore");
-		}	
-		Delay(2);
 	}
 }
