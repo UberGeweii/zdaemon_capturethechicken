@@ -212,11 +212,10 @@ Script CTC_DEATH Death
 	}
 }
 
+// Reset TID
 Script CTC_RESPAWN Respawn
-{ // Reset TID
-	Thing_ChangeTID(TID_PLAYERBASE+PlayerNumber(), 0);
-	Thing_ChangeTID(0, TID_PLAYERBASE+PlayerNumber());
-	Present[PlayerNumber()] = 1;
+{
+	// Later
 }
 
 /*
