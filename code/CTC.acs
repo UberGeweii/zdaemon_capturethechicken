@@ -49,6 +49,15 @@ function str FixClassName(str classname)
 	return classname;
 }
 
+// Print final score to the console
+function void PrintScore (void)
+{
+	for (int i = 0; i < PlayerTopIndex() + 1; i++)
+		if (PlayerInGame(i))
+			Log(n:i+1, s:" ended with a score of: ", d:score[i]);
+}
+
+
 int Carrier = -1;
 int Score[MAX_PLAYERS];
 int Present[MAX_PLAYERS];
@@ -286,11 +295,8 @@ script 307 OPEN // Check for win
 				
 	if(mayExit)
 	{
-		for (i=0; i<PlayerTopIndex()+1; i++)
-			Log(n:i+1, s:" ended with a score of: ", d:score[i]);
-			
+		PrintScore();
 		delay(2);
-			
 		Exit_Normal(0);
 	}
 	
@@ -430,12 +436,10 @@ script 312 OPEN
 {
 	while(true)
 	{
-		if (GetCvar("timelimit") > 0
-			&& (GetCvar("timelimit") * 60 )-1 == (Timer() / 35))
+		if (GetCvar("timelimit") > 0 && (GetCvar("timelimit") * 60 )-1 == (Timer() / 35))
 		{
-			for (int i=0; i<PlayerTopIndex()+1; i++)
-				Log(n:i+1, s:" ended with a score of: ", d:score[i]);
-			
+			PrintScore();
+			delay(2);
 			Exit_Normal(0);
 		}
 		//Print(d:Timer() / 35);
