@@ -45,7 +45,6 @@ conflicts.
 #define CTC_DEATH		304
 #define CTC_RESPAWN		305
 #define CTC_LEAVERS		308
-#define CTC_FEATHER		309
 #define CTC_EMERGENCY	310
 #define CTC_SCORING		311
 
@@ -355,6 +354,7 @@ Script CTC_LEAVERS (int player) Disconnect
 Script CTC_EMERGENCY (void)
 {
 	SetFont("TRES4FNT");
+	
 	if (Carrier == -1 && ThingCount(T_NONE, TID_CHICKEN) == 0) 
 	{
 		Delay(95);
@@ -364,11 +364,11 @@ Script CTC_EMERGENCY (void)
 			PrintBold(s:"No Chicken Detected!");
 			delay(35*2);
     
-			rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
+			rand = ZD_Rand(TID_PLAYERBASE, TID_PLAYERBASE + PlayerTopIndex());
 			
-			while(!Thing_Spawn(rand, 13, 0, TID_DUMMY)) //Let's spawn a dummy
+			while(!Thing_Spawn(rand, T_CHICKENSPAWNER, 0, TID_DUMMY)) //Let's spawn a dummy
 			{
-				rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
+				rand = ZD_Rand(TID_PLAYERBASE, TID_PLAYERBASE + PlayerTopIndex());
 				Delay(2);
 			}
 	
@@ -378,6 +378,7 @@ Script CTC_EMERGENCY (void)
 			AmbientSound("ctcchicken/sight", 127);			
 		}
 	}
+
 	delay(95);
 	restart;
 }	
