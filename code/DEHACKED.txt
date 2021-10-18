@@ -1,147 +1,338 @@
-INCLUDE SPAWNER
+#####################################
+#
+# Heretic's Mummy / Chicken Spawner
+#
+#####################################
 
-Thing 246 (Mace Pickup - Chicken Weapon)
+Thing 224
+Game = Doom
+ID #= 177
+SpawnID #= 13
+Speed = -8
+# 16
+Width = 1048576
+# 68
+Height = 4456448
+# unkillable
+Hit points = 2147483647
+Mass = 400
+First moving frame = 1497
+Initial frame = 1495
+Injury frame = 0
+Death frame = 0
+Exploding frame = 0
+Close attack frame = 0
+Far attack frame = 0
+Respawn frame = 0
+Bits = SHOOTABLE|DROPOFF|FLOAT
+
+# [Looking]
+Frame 1495
+Sprite number = 541
+Sprite subnumber = 0
+Duration = 10
+Next frame = 1496
+[CODEPTR]
+Frame 1495 = Look
+
+Frame 1496
+Sprite number = 541
+Sprite subnumber = 0
+Duration = 10
+Next frame = 1495
+[CODEPTR]
+Frame 1496 = Look
+
+# [Chasing]
+Frame 1497
+Sprite number = 541
+Sprite subnumber = 0
+Duration = 1
+Next frame = 1497
+[CODEPTR]
+Frame 1497 = Chase
+
+
+#####################################
+#
+# Feather
+#
+#####################################
+
+Thing 223 (Feather)
+Game = Doom
+ID #= 238
+SpawnID #= 15
+Initial frame = 1486
+Death frame = 1494
+
+# Feather Initial frame
+Frame 1486
+Sprite number = 222
+Sprite subnumber = 12
+Duration = 3
+Next frame = 1487
+[CODEPTR]
+Frame 1486 = Null
+
+Frame 1487
+Sprite number = 222
+Sprite subnumber = 13
+Duration = 3
+Next frame = 1488
+[CODEPTR]
+Frame 1487 = Null
+
+Frame 1488
+Sprite number = 222
+Sprite subnumber = 14
+Duration = 3
+Next frame = 1489
+[CODEPTR]
+Frame 1488 = Null
+
+Frame 1489
+Sprite number = 222
+Sprite subnumber = 15
+Duration = 3
+Next frame = 1490
+[CODEPTR]
+Frame 1489 = Null
+
+Frame 1490
+Sprite number = 222
+Sprite subnumber = 16
+Duration = 3
+Next frame = 1491
+[CODEPTR]
+Frame 1490 = Null
+
+Frame 1491
+Sprite number = 222
+Sprite subnumber = 15
+Duration = 3
+Next frame = 1492
+[CODEPTR]
+Frame 1491 = Null
+
+Frame 1492
+Sprite number = 222
+Sprite subnumber = 14
+Duration = 3
+Next frame = 1493
+[CODEPTR]
+Frame 1492 = Null
+
+Frame 1493
+Sprite number = 222
+Sprite subnumber = 13
+Duration = 3
+Next frame = 1486
+[CODEPTR]
+Frame 1493 = Null
+
+# Feather Death frame
+Frame 1494
+Sprite number = 222
+Sprite subnumber = 12
+Duration = 6
+Next frame = 0
+[CODEPTR]
+Frame 1494 = Null
+
+
+#####################################
+#
+# Chicken
+#
+#####################################
+
+# Chicken Initial frame
+Frame 1470
+Sprite number = 222
+Sprite subnumber = 0
+Duration = 10
+Next frame = 1471
+[CODEPTR]
+Frame 1470 = Look
+
+Frame 1471
+Sprite number = 222
+Sprite subnumber = 1
+Duration = 10
+Next frame = 1470
+[CODEPTR]
+Frame 1471 = Look
+
+
+# Chicken First moving frame
+Frame 1472
+Sprite number = 222
+Sprite subnumber = 0
+Duration = 2
+Next frame = 1473
+[CODEPTR]
+Frame 1472 = ChicChase
+
+Frame 1473
+Sprite number = 222
+Sprite subnumber = 1
+Duration = 2
+Next frame = 1514
+[CODEPTR]
+Frame 1473 = ChicChase
+
+Frame 1476
+Sprite number = 222
+Sprite subnumber = 0
+Duration = 2
+Next frame = 1477
+[CODEPTR]
+Frame 1476 = ChicChase
+
+Frame 1477
+Sprite number = 222
+Sprite subnumber = 1
+Duration = 2
+Next frame = 1472
+[CODEPTR]
+Frame 1477 = Feathers
+
+
+# Chicken Pain frame
+Frame 1474
+Sprite number = 222
+Sprite subnumber = 3
+Duration = 8
+Next frame = 1475
+[CODEPTR]
+Frame 1474 = ChicChase
+
+Frame 1475
+Sprite number = 222
+Sprite subnumber = 2
+Duration = 10
+Next frame = 1472
+[CODEPTR]
+Frame 1475 = Feathers
+
+
+# Chicken Death frame
+Frame 1478
+Sprite number = 222
+Sprite subnumber = 4
+Duration = 6
+Next frame = 1479
+[CODEPTR]
+Frame 1478 = Scream
+
+Frame 1479
+Sprite number = 222
+Sprite subnumber = 5
+Duration = 6
+Next frame = 1480
+[CODEPTR]
+Frame 1479 = Feathers
+
+Frame 1480
+Sprite number = 222
+Sprite subnumber = 6
+Duration = 6
+Next frame = 1481
+[CODEPTR]
+Frame 1480 = Null
+
+Frame 1481
+Sprite number = 222
+Sprite subnumber = 7
+Duration = 6
+Next frame = 1482
+[CODEPTR]
+Frame 1481 = NoBlocking
+
+Frame 1482
+Sprite number = 222
+Sprite subnumber = 7
+Duration = 6
+Next frame = 1483
+[CODEPTR]
+Frame 1482 = Null
+
+Frame 1483
+Sprite number = 222
+Sprite subnumber = 7
+Duration = 6
+Next frame = 1484
+[CODEPTR]
+Frame 1483 = Null
+
+Frame 1484
+Sprite number = 222
+Sprite subnumber = 7
+Duration = 6
+Next frame = 1485
+[CODEPTR]
+Frame 1484 = Null
+
+Frame 1485
+Sprite number = 222
+Sprite subnumber = 7
+Duration = -1
+Next frame = 0
+[CODEPTR]
+Frame 1485 = Null
+
+
+[STRINGS]
+TXT_WPNMACE = Got the chicken!
+
+
+#####################################
+#
+# Chicken Weapon
+#
+#####################################
+
+Thing 195 (Mace Pickup - Chicken Weapon)
 Game = Doom
 ID #= 246
 SpawnID #= 14
-Hit points = 9999
+# unkillable
+Hit points = 2147483647
 Speed = -15
+# 9
 Width = 589824
+# 22
 Height = 1441792
 Pain chance = 200
 Mass = 400
-Bits = SPECIAL|FLOORCLIP|PASSMOBJ|PUSHWALL|SHOOTABLE|SOLID|WINDTHRUST
-Initial frame = 1302
-First moving frame = 1304
-Injury frame = 1306
+Initial frame = 1470
+First moving frame = 1472
+Injury frame = 1474
 Close attack frame = 0
-Death frame = 1310
+Far attack frame = 0
+Death frame = 1478
 Alert sound = chicken/pain
 Pain sound = chicken/pain
 Attack sound = chicken/peck
 Death sound = chicken/death
 Action sound = chicken/active
+Bits = SPECIAL|FLOORCLIP|PASSMOBJ|PUSHWALL|SHOOTABLE|SOLID|WINDTHRUST
+
 
 Weapon 15 (Mace)
 Ammo type = 5
 Ammo use = 1
 Min ammo = -1
-Shooting frame = 1078
+Shooting frame = 1218
 
-Thing 238 (BlasterAmmo - Feather)
-Game = Doom
-ID #= 238
-SpawnID #= 15
-Bits = CANNOTPUSH|DROPOFF|LOGRAV|NOTELEPORT|WINDTHRUST
-Initial frame = 1318
-Death frame = 1326
 
-# Feather Initial frame
-Frame 1318
-Sprite number = 164	# CHKN
-Sprite subnumber = 12
-Next frame = 1319
-Duration = 3
-
-Frame 1319
-Sprite number = 164	# CHKN
-Sprite subnumber = 13
-Next frame = 1320
-Duration = 3
-
-Frame 1320
-Sprite number = 164	# CHKN
-Sprite subnumber = 14
-Next frame = 1321
-Duration = 3
-
-Frame 1321
-Sprite number = 164	# CHKN
-Sprite subnumber = 15
-Next frame = 1322
-Duration = 3
-
-Frame 1322
-Sprite number = 164	# CHKN
-Sprite subnumber = 16
-Next frame = 1323
-Duration = 3
-
-Frame 1323
-Sprite number = 164	# CHKN
-Sprite subnumber = 15
-Next frame = 1324
-Duration = 3
-
-Frame 1324
-Sprite number = 164	# CHKN
-Sprite subnumber = 14
-Next frame = 1325
-Duration = 3
-
-Frame 1325
-Sprite number = 164	# CHKN
-Sprite subnumber = 13
-Next frame = 1318
-Duration = 3
-
-# Feather Death frame
-Frame 1326
-Sprite number = 164	# CHKN
-Sprite subnumber = 12
-Next frame = 0
-Duration = 6
-
-# Chicken First moving frame
-Frame 1304
-Sprite number = 164	# CHKN
-Sprite subnumber = 0
-Next frame = 1305
-Duration = 2
-#Code pointer = A_ChicChase
-
-Frame 1305
-Sprite number = 164	# CHKN
-Sprite subnumber = 1
-Next frame = 1079
-Duration = 2
-#Code pointer = A_ChicChase
-
-Frame 1079
-Sprite number = 164	# CHKN
-Sprite subnumber = 2
-Next frame = 1080
-Duration = 2
-#Code pointer = A_ChicChase
-
-Frame 1080
-Sprite number = 164	# CHKN
-Sprite subnumber = 3
-Next frame = 1304
-Duration = 2
-#Code pointer = A_ChicChase
-
-Frame 1078
-Sprite number = 144	# MACE
+Frame 1218
+Sprite number = 203
 Sprite subnumber = 0
 Args1 = 94
 Args2 = 0
-Next frame = 1077
 Duration = 70
-
+Next frame = 1215
 [CODEPTR]
-Frame 1078 = A_PlayWeaponSound
-Frame 1079 = A_ChicChase
-Frame 1080 = A_ChicChase
-Frame 1318 = NULL
-Frame 1319 = NULL
-Frame 1320 = NULL
-Frame 1321 = NULL
-Frame 1322 = NULL
-Frame 1323 = NULL
-Frame 1324 = NULL
-Frame 1325 = NULL
-Frame 1326 = NULL
-
-[STRINGS]
-TXT_WPNMACE     = Got the chicken!
+Frame 1218 = PlayWeaponSound
