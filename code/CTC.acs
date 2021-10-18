@@ -106,13 +106,16 @@ script 301 open // Setup arena and spawn first chicken
 	ACS_Execute(310, 0, 0, 0, 0);	
 }
 
-script 302 ENTER 
+script 302 Enter
 {	// Assign TID to new players
     SetFont("TRES4FNT");
-	Present[PlayerNumber()] = 1;	
+	Present[PlayerNumber()] = 1;
 	Thing_ChangeTID(0, TID_PLAYERBASE+PlayerNumber());
 	NumPlayers = PlayerCount();
-	if (CheckInventory("Chicken, 0")) TakeInventory("Chicken", 1);
+
+	if (CheckInventory("Chicken", 0))
+		TakeInventory("Chicken", 1);
+
 	SetPlayerProperty(0, false, PROP_INSTANTWEAPONSWITCH);
 }
 
