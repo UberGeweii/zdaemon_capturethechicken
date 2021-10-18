@@ -17,7 +17,6 @@ Original idea by Cutmanmike and HotWax
 #define MAX_PLAYERS					64
 #define SHOW_MAX_PLAYERS 			32
 #define MAXSCORES_MSG_BASE			1		// for rank 1
-#define MAXSCORES_TEXT_POSY			0.10
 #define MAXSCORES_TEXT_POSY_OFFS	0.02
 #define SEC							35
 
@@ -37,6 +36,9 @@ conflicts.
 // Define new monster SpawnIDs here.
 #define T_CHICKENSPAWNER   13
 #define T_CHICKENPICKUP    14
+
+#define VID_WIDTH		640
+#define VID_HEIGHT		480
 
 #define CTC_MAIN		301
 #define CTC_ENTER		302
@@ -122,7 +124,7 @@ function PrintScores (void)
 		
 			SetFont("BIGFONT");
 			tmp_scores_str = StrParam(n: idx_player_max_scores[i] + 1);
-			HudMessageBold(s: tmp_scores_str, s: ": ", d: max_scores[i]; HUDMSG_FADEOUT, MAXSCORES_MSG_BASE + i, colour, 0.01, MAXSCORES_TEXT_POSY + i * MAXSCORES_TEXT_POSY_OFFS, 0.5, 0.5);
+			HudMessageBold(s: tmp_scores_str, s: ": ", d: max_scores[i]; HUDMSG_FADEOUT, MAXSCORES_MSG_BASE + i, colour, 0.1, (VID_HEIGHT / 10) * 1.0 + i * MAXSCORES_TEXT_POSY_OFFS, 0.5, 0.5);
 		}
 	}
 }
@@ -161,9 +163,10 @@ Script CTC_MAIN Open
 	{
 		Delay(70);
 		SetFont("TRES3FNT");
-		HudMessageBold(s:"Waiting for atleast 2 players"; HUDMSG_FADEINOUT, 100, CR_WHITE, 0.5, 0.7, 0.5, 0.5);
+		HudMessageBold(s:"Waiting for atleast 2 players"; HUDMSG_FADEINOUT, 100, CR_WHITE, (VID_WIDTH / 2) * 1.0, (VID_HEIGHT / 3) * 1.0, 0.5, 0.5);
 	}
-		
+
+	SetHudSize(VID_WIDTH, VID_HEIGHT, false);
 	SetFont("TRES4FNT");
 
 	SetPlayerProperty(1, false, PROP_TOTALLYFROZEN);
