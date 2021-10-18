@@ -1,0 +1,55 @@
+#####################################
+# Heretic's Mummy / Chicken Spawner #
+#####################################
+
+Thing 177
+Game = Doom
+ID #= 177
+SpawnID #= 13
+Speed = -8
+Width = 1048576
+Height = 4456448
+Hit points = 99999
+Mass = 400
+Bits = SHOOTABLE|DROPOFF|FLOAT
+First moving frame = 1435
+Initial frame = 1433
+Injury frame = 0
+Death frame = 1448
+Exploding frame = 0
+Close attack frame = 0
+Far attack frame = 0
+Respawn frame = 0
+
+# [Looking]
+
+Frame 1433
+Sprite number = 170
+Sprite subnumber = 0
+Next frame = 1434
+Duration = 10
+#Code pointer = A_Look
+
+Frame 1434
+Sprite number = 170
+Sprite subnumber = 0
+Next frame = 1433
+Duration = 10
+#Code pointer = A_Look
+
+# [Chasing]
+
+Frame 1435
+Sprite number = 170
+Sprite subnumber = 0
+Next frame = 1435
+Duration = 1
+#Code pointer = A_Chase
+
+[CODEPTR]
+Frame 1433 = Look
+Frame 1434 = Look
+Frame 1435 = Chase
+
+Text 4 4
+MUMMTNT1

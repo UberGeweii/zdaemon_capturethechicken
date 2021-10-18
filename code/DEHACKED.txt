@@ -1,0 +1,147 @@
+INCLUDE SPAWNER
+
+Thing 246 (Mace Pickup - Chicken Weapon)
+Game = Doom
+ID #= 246
+SpawnID #= 14
+Hit points = 9999
+Speed = -15
+Width = 589824
+Height = 1441792
+Pain chance = 200
+Mass = 400
+Bits = SPECIAL|FLOORCLIP|PASSMOBJ|PUSHWALL|SHOOTABLE|SOLID|WINDTHRUST
+Initial frame = 1302
+First moving frame = 1304
+Injury frame = 1306
+Close attack frame = 0
+Death frame = 1310
+Alert sound = chicken/pain
+Pain sound = chicken/pain
+Attack sound = chicken/peck
+Death sound = chicken/death
+Action sound = chicken/active
+
+Weapon 15 (Mace)
+Ammo type = 5
+Ammo use = 1
+Min ammo = -1
+Shooting frame = 1078
+
+Thing 238 (BlasterAmmo - Feather)
+Game = Doom
+ID #= 238
+SpawnID #= 15
+Bits = CANNOTPUSH|DROPOFF|LOGRAV|NOTELEPORT|WINDTHRUST
+Initial frame = 1318
+Death frame = 1326
+
+# Feather Initial frame
+Frame 1318
+Sprite number = 164	# CHKN
+Sprite subnumber = 12
+Next frame = 1319
+Duration = 3
+
+Frame 1319
+Sprite number = 164	# CHKN
+Sprite subnumber = 13
+Next frame = 1320
+Duration = 3
+
+Frame 1320
+Sprite number = 164	# CHKN
+Sprite subnumber = 14
+Next frame = 1321
+Duration = 3
+
+Frame 1321
+Sprite number = 164	# CHKN
+Sprite subnumber = 15
+Next frame = 1322
+Duration = 3
+
+Frame 1322
+Sprite number = 164	# CHKN
+Sprite subnumber = 16
+Next frame = 1323
+Duration = 3
+
+Frame 1323
+Sprite number = 164	# CHKN
+Sprite subnumber = 15
+Next frame = 1324
+Duration = 3
+
+Frame 1324
+Sprite number = 164	# CHKN
+Sprite subnumber = 14
+Next frame = 1325
+Duration = 3
+
+Frame 1325
+Sprite number = 164	# CHKN
+Sprite subnumber = 13
+Next frame = 1318
+Duration = 3
+
+# Feather Death frame
+Frame 1326
+Sprite number = 164	# CHKN
+Sprite subnumber = 12
+Next frame = 0
+Duration = 6
+
+# Chicken First moving frame
+Frame 1304
+Sprite number = 164	# CHKN
+Sprite subnumber = 0
+Next frame = 1305
+Duration = 2
+#Code pointer = A_ChicChase
+
+Frame 1305
+Sprite number = 164	# CHKN
+Sprite subnumber = 1
+Next frame = 1079
+Duration = 2
+#Code pointer = A_ChicChase
+
+Frame 1079
+Sprite number = 164	# CHKN
+Sprite subnumber = 2
+Next frame = 1080
+Duration = 2
+#Code pointer = A_ChicChase
+
+Frame 1080
+Sprite number = 164	# CHKN
+Sprite subnumber = 3
+Next frame = 1304
+Duration = 2
+#Code pointer = A_ChicChase
+
+Frame 1078
+Sprite number = 144	# MACE
+Sprite subnumber = 0
+Args1 = 94
+Args2 = 0
+Next frame = 1077
+Duration = 70
+
+[CODEPTR]
+Frame 1078 = A_PlayWeaponSound
+Frame 1079 = A_ChicChase
+Frame 1080 = A_ChicChase
+Frame 1318 = NULL
+Frame 1319 = NULL
+Frame 1320 = NULL
+Frame 1321 = NULL
+Frame 1322 = NULL
+Frame 1323 = NULL
+Frame 1324 = NULL
+Frame 1325 = NULL
+Frame 1326 = NULL
+
+[STRINGS]
+TXT_WPNMACE     = Got the chicken!
