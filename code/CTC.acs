@@ -43,12 +43,10 @@ conflicts.
 #define CTC_DEATH		304
 #define CTC_RESPAWN		305
 #define CTC_SHOWSCORES	306
-#define CTC_CHECKWIN	307
 #define CTC_LEAVERS		308
 #define CTC_FEATHER		309
 #define CTC_EMERGENCY	310
 #define CTC_SCORING		311
-#define CTC_TIMELIMIT	312
 
 // Print final score to the console
 function void PrintScore (void)
@@ -86,7 +84,10 @@ Script CTC_MAIN Open
 		WinningScore = 100;
 	}
 
-	while(PlayerCount() < 2) // wait for players
+	Carrier = -1;
+
+	// wait for players
+	while (PlayerCount() < 2)
 	{
 		Delay(70);
 		SetFont("TRES3FNT");
@@ -94,19 +95,19 @@ Script CTC_MAIN Open
 	}
 		
 	SetFont("TRES4FNT");
-	Carrier = -1;
-    delay(1);
+
 	SetPlayerProperty(1, false, PROP_TOTALLYFROZEN);
     
-	rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
+	rand = ZD_Rand(TID_PLAYERBASE, TID_PLAYERBASE + PlayerTopIndex());
 	
-	while(!Thing_Spawn(rand, T_CHICKENSPAWNER, 0, TID_DUMMY)) //Let's spawn a dummy
+	// Let's spawn a dummy
+	while (!Thing_Spawn(rand, T_CHICKENSPAWNER, 0, TID_DUMMY)) 
 	{
-		rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
+		rand = ZD_Rand(TID_PLAYERBASE, TID_PLAYERBASE + PlayerTopIndex());
 		Delay(2);
 	}
 	
-	Delay(3*SEC);
+	Delay(3 * SEC);
 	
 	// Spawn the real chicken at the dummy
 	while(!ThingCount(0, TID_CHICKEN))
@@ -115,7 +116,7 @@ Script CTC_MAIN Open
 		delay(1);
 	}
 	
-    Thing_Hate(TID_CHICKEN, TID_PLAYERBASE+ZD_Rand(0, PlayerTopIndex()));
+    Thing_Hate(TID_CHICKEN, TID_PLAYERBASE + ZD_Rand(0, PlayerTopIndex()));
     PrintBold(s:"A Chicken has appeared!");
 	AmbientSound("ctcchicken/sight", 127);
 	
@@ -123,7 +124,42 @@ Script CTC_MAIN Open
 		Score[i] = 0;
 		
 	gamestarted = true;
-	ACS_Execute(CTC_EMERGENCY, 0);	
+	ACS_Execute(CTC_EMERGENCY, 0);
+
+	// main loop
+	while (true)
+	{
+		// check if score limit rechead
+		for (int i = 0; i < MAX_PLAYERS; i++) 
+		{
+			if (PlayerInGame(i) && Score[i] >= WinningScore) 
+			{
+				ACS_Terminate(CTC_SCORING, 0);
+				SetPlayerProperty(1, true, PROP_TOTALLYFROZEN);
+				PrintBold(n:i+1, s:" has won!!");
+
+				delay(5*35);
+
+				PrintScore();
+				delay(2);
+				Exit_Normal(0);
+			}
+		}
+
+		/* Time limit
+		Todo: Custom timelimit system needed to start the count right as the first
+		chicken spawns.. 
+		*/
+		if (GetCvar("timelimit") > 0 && (GetCvar("timelimit") * 60 )-1 == (Timer() / 35))
+		{
+			PrintScore();
+			delay(2);
+			Exit_Normal(0);
+		}
+
+
+		delay(5);
+	}
 }
 
 // Assign TID to new players
@@ -139,6 +175,8 @@ Script CTC_ENTER Enter
 	// remove weapon if player has it
 	if (CheckInventory("Mace"))
 		TakeInventory("Mace", 1);
+
+	SetPlayerProperty(0, true, PROP_TOTALLYFROZEN);
 
 	while (!gamestarted)
 		delay(1);
@@ -218,7 +256,6 @@ Script CTC_RESPAWN Respawn
 	// Later
 }
 
-
 // Show maximum scores and player
 Script CTC_SHOWSCORES Open
 {
@@ -293,40 +330,6 @@ Script CTC_SHOWSCORES Open
 	Restart;
 }
 
-
-// Check for win
-Script CTC_CHECKWIN Open
-{
-	int i;
-	bool mayExit = false;
-	
-    SetFont("TRES4FNT");	
-	if (WinningScore > 0) 
-	{
-		for (i=0; i<MAX_PLAYERS; i++) 
-		{
-			if (PlayerInGame(i) && Score[i] >= WinningScore) 
-			{
-				ACS_Terminate(CTC_SCORING, 0);
-				SetPlayerProperty(1, true, PROP_TOTALLYFROZEN);
-				PrintBold(n:i+1, s:" has won!!");
-				delay(5*35);
-				mayExit = true;
-			}
-		}
-	}
-				
-	if(mayExit)
-	{
-		PrintScore();
-		delay(2);
-		Exit_Normal(0);
-	}
-	
-	delay(5);
-	restart;
-}
-
 // Watch for leaving players
 Script CTC_LEAVERS (int player) Disconnect
 {
@@ -389,25 +392,5 @@ Script CTC_SCORING (int player)
 		// adding a disconnect-fail proof concept thing
 		if (!PlayerInGame(player))
 			terminate;
-	}
-}
-
-/* 
-	Todo: Custom timelimit system needed to start the count right as the first
-	chicken spawns.. 
-*/
-
-Script CTC_TIMELIMIT Open
-{
-	while(true)
-	{
-		if (GetCvar("timelimit") > 0 && (GetCvar("timelimit") * 60 )-1 == (Timer() / 35))
-		{
-			PrintScore();
-			delay(2);
-			Exit_Normal(0);
-		}
-		//Print(d:Timer() / 35);
-		Delay(1);
 	}
 }
