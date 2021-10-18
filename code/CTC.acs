@@ -79,7 +79,7 @@ script 301 open // Setup arena and spawn first chicken
     
 	rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
 	
-	while(!Thing_Spawn(rand, 13, 0, TID_DUMMY)) //Let's spawn a dummy
+	while(!Thing_Spawn(rand, T_CHICKENSPAWNER, 0, TID_DUMMY)) //Let's spawn a dummy
 	{
 		rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
 		Delay(2);
@@ -90,7 +90,7 @@ script 301 open // Setup arena and spawn first chicken
 	// Spawn the real chicken at the dummy
 	while(!ThingCount(0, TID_CHICKEN))
 	{
-		Thing_Spawn(TID_DUMMY, 14, 0, TID_CHICKEN);
+		Thing_Spawn(TID_DUMMY, T_CHICKENPICKUP, 0, TID_CHICKEN);
 		delay(1);
 	}
 	
@@ -323,14 +323,14 @@ script 308 OPEN // Watch for leaving players
 	
 				rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
 				
-				while(!Thing_Spawn(rand, 13, 0, TID_DUMMY)) //Let's spawn a dummy
+				while(!Thing_Spawn(rand, T_CHICKENSPAWNER, 0, TID_DUMMY)) //Let's spawn a dummy
 				{
 					rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
 					Delay(2);
 				}
 
 				delay(94);
-				Thing_Spawn(TID_DUMMY, 14, 0, TID_CHICKEN);
+				Thing_Spawn(TID_DUMMY, T_CHICKENPICKUP, 0, TID_CHICKEN);
 				AmbientSound("ctcchicken/sight", 127);
 				Present[Carrier] = -1; // So the scoreboard can reset his color
 				Carrier = -1;				
@@ -402,7 +402,7 @@ script 310 (void) // Emergency Chicken Saver script.  Keeping your chickens in t
 			}
 	
 			delay(94);
-			Thing_Spawn(TID_DUMMY, 14, 0, TID_CHICKEN); //spawns the actual chicken on the chickenspawner
+			Thing_Spawn(TID_DUMMY, T_CHICKENPICKUP, 0, TID_CHICKEN); //spawns the actual chicken on the chickenspawner
 			SetThingSpecial(TID_CHICKEN, ACS_Execute, 200, 0, 0, 0, 0);
 			PrintBold(s:"ChickenSaver(TM) Activated!!");
 			AmbientSound("ctcchicken/sight", 127);			
