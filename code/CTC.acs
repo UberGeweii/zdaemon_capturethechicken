@@ -75,7 +75,7 @@ script 301 open // Setup arena and spawn first chicken
 	SetFont("TRES4FNT");
 	Carrier = -1;
     delay(1);
-	SetPlayerProperty(1, 0, 4);
+	SetPlayerProperty(1, false, PROP_TOTALLYFROZEN);
     
 	rand = ZD_Rand(TID_PLAYERBASE,TID_PLAYERBASE+PlayerTopIndex());
 	
@@ -113,7 +113,7 @@ script 302 ENTER
 	Thing_ChangeTID(0, TID_PLAYERBASE+PlayerNumber());
 	NumPlayers = PlayerCount();
 	if (CheckInventory("Chicken, 0")) TakeInventory("Chicken", 1);
-	SetPlayerProperty(0, 0, PROP_INSTANTWEAPONSWITCH);
+	SetPlayerProperty(0, false, PROP_INSTANTWEAPONSWITCH);
 }
 
 script 303 OPEN {	// Play sounds from chicken-holder
@@ -273,7 +273,7 @@ script 307 OPEN // Check for win
 			if (Present[i] && Score[i] >= WinningScore) 
 			{
 				ACS_Terminate(311, 0);
-				SetPlayerProperty(1, 1, 4);
+				SetPlayerProperty(1, true, PROP_TOTALLYFROZEN);
 				PrintBold(n:i+1, s:" has won!!");
 				delay(5*35);
 				mayExit = true;
@@ -489,7 +489,7 @@ script 399 open
 script 200 (void) // Got the chicken
 {
     SetFont("TRES4FNT");
-	SetPlayerProperty(0, 0, 8);
+	SetPlayerProperty(0, false, PROP_RADIATIONSUIT);
 	PrintBold(n:PlayerNumber()+1, s:" Has picked up the Chicken!!");
 	AmbientSound("ctcchicken/sight", 127);
 	Carrier = PlayerNumber();
@@ -500,9 +500,9 @@ script 200 (void) // Got the chicken
 	// Prevent carrier from using weapons
 	while (Carrier != -1 && Carrier == PlayerNumber()) 
 	{
-		SetPlayerProperty (0, 0, 5);
-		SetPlayerProperty (0, 0, 6);
-		SetPlayerProperty (0, 0, 7);
+		SetPlayerProperty (0, false, PROP_INVULNERABILITY);
+		SetPlayerProperty (0, false, PROP_STRENGTH);
+		SetPlayerProperty (0, false, PROP_INVISIBILITY);
 		
 		if(CheckInventory("Health")>0)
 			Setweapon("Mace");
