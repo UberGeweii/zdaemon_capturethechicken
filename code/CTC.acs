@@ -157,6 +157,7 @@ Script CTC_ENTER Enter
 			if (!carry)
 			{
 				carry = true;
+				Carrier = PlayerNumber();
 
 				PrintBold(n:PlayerNumber() + 1, s:" Has picked up the Chicken!!");
 				AmbientSound("ctcchicken/sight", 127);
@@ -201,7 +202,7 @@ Script CTC_DEATH Death
 {
     SetFont("TRES4FNT");
 
-	if (CheckInventory("Mace"))
+	if (Carrier == PlayerNumber()) 
 	{
 		ACS_Terminate(CTC_SCORING, 0);
 		DropItem (TID_PLAYERBASE + PlayerNumber(), "Mace");
@@ -209,6 +210,8 @@ Script CTC_DEATH Death
 		
 		PrintBold(n:PlayerNumber() + 1, s:" has dropped the Chicken!!");
 		AmbientSound("ctcchicken/sight", 127);
+
+		Carrier = -1;
 	}
 }
 
@@ -409,6 +412,10 @@ Script CTC_SCORING (int player)
 	{
 		delay(35);
 		Score[player]++;
+
+		// adding a disconnect-fail proof concept thing
+		if (!playeringame(player))
+			terminate;
 	}
 }
 
