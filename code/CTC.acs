@@ -61,7 +61,6 @@ function void PrintScore (void)
 
 int Carrier = -1;
 int Score[MAX_PLAYERS];
-int Present[MAX_PLAYERS];
 int max_scores[MAX_PLAYERS];
 int idx_player_max_scores[MAX_PLAYERS];
 int FlashScore = 0;
@@ -132,8 +131,6 @@ Script CTC_ENTER Enter
 {
 	bool carry = false;
 	int oldsnd, snd;
-
-	Present[PlayerNumber()] = 1;
 
 	// Assign TID to new players
 	Thing_ChangeTID(0, TID_PLAYERBASE+PlayerNumber());
@@ -308,7 +305,7 @@ Script CTC_CHECKWIN Open
 	{
 		for (i=0; i<MAX_PLAYERS; i++) 
 		{
-			if (Present[i] && Score[i] >= WinningScore) 
+			if (PlayerInGame(i) && Score[i] >= WinningScore) 
 			{
 				ACS_Terminate(CTC_SCORING, 0);
 				SetPlayerProperty(1, true, PROP_TOTALLYFROZEN);
@@ -390,7 +387,7 @@ Script CTC_SCORING (int player)
 		Score[player]++;
 
 		// adding a disconnect-fail proof concept thing
-		if (!playeringame(player))
+		if (!PlayerInGame(player))
 			terminate;
 	}
 }
