@@ -240,6 +240,30 @@ Script CTC_MAIN Open
 // Assign TID to new players
 Script CTC_ENTER Enter
 {
+	ACS_ExecuteAlways(CTC_RESPAWN, 0);
+}
+
+// Release chicken when carrier dies
+Script CTC_DEATH Death
+{
+    SetFont("TRES4FNT");
+
+	if (Carrier == PlayerNumber()) 
+	{
+		ACS_Terminate(CTC_SCORING, 0);
+		DropItem (TID_PLAYERBASE + PlayerNumber(), "Mace");
+		Thing_ChangeTID(TID_PLAYERBASE + PlayerNumber(), 0);
+		
+		PrintBold(n:PlayerNumber() + 1, s:" has dropped the Chicken!!");
+		AmbientSound("ctcchicken/sight", 127);
+
+		Carrier = -1;
+	}
+}
+
+// Reset TID
+Script CTC_RESPAWN Respawn
+{
 	bool carry = false;
 	int oldsnd, snd;
 
@@ -305,30 +329,6 @@ Script CTC_ENTER Enter
 		delay(1);
 		oldsnd++;
 	}
-}
-
-// Release chicken when carrier dies
-Script CTC_DEATH Death
-{
-    SetFont("TRES4FNT");
-
-	if (Carrier == PlayerNumber()) 
-	{
-		ACS_Terminate(CTC_SCORING, 0);
-		DropItem (TID_PLAYERBASE + PlayerNumber(), "Mace");
-		Thing_ChangeTID(TID_PLAYERBASE + PlayerNumber(), 0);
-		
-		PrintBold(n:PlayerNumber() + 1, s:" has dropped the Chicken!!");
-		AmbientSound("ctcchicken/sight", 127);
-
-		Carrier = -1;
-	}
-}
-
-// Reset TID
-Script CTC_RESPAWN Respawn
-{
-	// Later
 }
 
 // Watch for leaving players
